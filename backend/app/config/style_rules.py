@@ -202,6 +202,20 @@ EXPECTED_MARGINS = {
     "right": 20.0
 }
 
+EXPECTED_CSM_MARGINS = {
+    "top": 20.0,
+    "bottom": 20.0,
+    "left": 20.0,
+    "right": 20.0,
+}
+
+EXPECTED_VKR_MARGINS = {
+    "top": 20.0,
+    "bottom": 20.0,
+    "left": 30.0,
+    "right": 15.0,
+}
+
 EXPECTED_PAGE_WIDTH = 210.0
 EXPECTED_PAGE_HEIGHT = 297.0
 
