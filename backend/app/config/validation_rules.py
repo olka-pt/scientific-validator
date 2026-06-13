@@ -1,0 +1,29 @@
+from backend.app.config.semantic_types import (
+    TITLE_RU,
+    TITLE_EN,
+    ABSTRACT_RU,
+    ABSTRACT_EN,
+    BODY,
+    CAPTION,
+    TABLE_CAPTION,
+    REFERENCES_HEADER,
+    REFERENCE_ITEM,
+)
+
+
+EXPECTED_FONT_SIZES = {
+    TITLE_RU: 14,
+    TITLE_EN: 14,
+
+    ABSTRACT_RU: 12,
+    ABSTRACT_EN: 12,
+
+    BODY: 14,
+
+    CAPTION: 12,
+    TABLE_CAPTION: 14,
+
+    REFERENCES_HEADER: 14,
+
+    REFERENCE_ITEM: 14,
+}

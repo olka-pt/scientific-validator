@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ФорматУМ — проверка научных работ</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 34%),
+                linear-gradient(135deg, #F8FAFC 0%, #EEF6FF 100%);
+            color: #0F172A;
+        }
+
+        .page {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 760px;
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 28px;
+            box-shadow: 0 24px 80px rgba(15, 23, 42, 0.10);
+            padding: 42px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            gap: 24px;
+            align-items: center;
+            margin-bottom: 36px;
+        }
+
+        .brand-title {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+        }
+
+        .brand-subtitle {
+            font-size: 14px;
+            color: #64748B;
+            margin-top: 6px;
+        }
+
+        .badge {
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: #EFF6FF;
+            color: #1E90FF;
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .hero-title {
+            font-size: 38px;
+            line-height: 1.08;
+            letter-spacing: -0.05em;
+            margin: 0 0 14px;
+        }
+
+        .hero-text {
+            max-width: 560px;
+            color: #64748B;
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 0 0 30px;
+        }
+
+        .upload-box {
+            border: 1.5px dashed #CBD5E1;
+            border-radius: 22px;
+            padding: 28px;
+            background: #F8FAFC;
+            transition: 0.2s ease;
+        }
+
+        .upload-box:hover,
+        .upload-box.drag-over {
+            border-color: #38BDF8;
+            background: #F0F9FF;
+            box-shadow: 0 18px 45px rgba(56, 189, 248, 0.18);
+        }
+
+        .drop-hint {
+            margin: 0 0 14px;
+            font-size: 14px;
+            color: #64748B;
+            text-align: center;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 14px;
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 14px;
+            color: #334155;
+        }
+
+        .button {
+            width: 100%;
+            margin-top: 18px;
+            border: none;
+            border-radius: 16px;
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #1E90FF, #38BDF8);
+            color: #FFFFFF;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 14px 30px rgba(30, 144, 255, 0.26);
+        }
+
+        .button:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .status-panel {
+            display: none;
+            margin-top: 18px;
+            padding: 18px;
+            border-radius: 18px;
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+        }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .spinner {
+            width: 22px;
+            height: 22px;
+            border: 3px solid #DBEAFE;
+            border-top-color: #1E90FF;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .status-text {
+            font-size: 14px;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .progress {
+            width: 100%;
+            height: 10px;
+            border-radius: 999px;
+            background: #E2E8F0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #1E90FF, #38BDF8);
+            transition: width 0.35s ease;
+        }
+
+        .result {
+            display: none;
+            margin-top: 28px;
+            padding: 24px;
+            border-radius: 22px;
+            border: 1px solid #E2E8F0;
+            background: #FFFFFF;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .result-file-name {
+            margin-top: -6px;
+            margin-bottom: 16px;
+            color: #64748B;
+            font-size: 13px;
+            font-weight: 700;
+            word-break: break-word;
+        }
+
+        .result-carousel-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .carousel-button {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #CBD5E1;
+            border-radius: 999px;
+            background: #FFFFFF;
+            color: #0F172A;
+            font-size: 18px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .carousel-button:hover {
+            background: #F8FAFC;
+        }
+
+        .carousel-counter {
+            color: #64748B;
+            font-size: 13px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin: 18px 0 20px;
+        }
+
+        .metric {
+            padding: 18px;
+            border-radius: 18px;
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .score-green {
+            color: #10B981;
+        }
+
+        .score-yellow {
+            color: #F59E0B;
+        }
+
+        .score-red {
+            color: #EF4444;
+        }
+
+        .compliance-status {
+            margin: 0 0 18px;
+            padding: 14px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 800;
+            line-height: 1.4;
+        }
+
+        .compliance-status-ok {
+            color: #065F46;
+            background: #D1FAE5;
+            border: 1px solid #A7F3D0;
+        }
+
+        .compliance-status-warning {
+            color: #92400E;
+            background: #FEF3C7;
+            border: 1px solid #FDE68A;
+        }
+
+        .compliance-status-danger {
+            color: #991B1B;
+            background: #FEE2E2;
+            border: 1px solid #FECACA;
+        }
+
+        .score-recommendation {
+            margin-top: 10px;
+            font-size: 12px;
+            font-weight: 800;
+            line-height: 1.35;
+        }
+
+        .recommendation-green {
+            color: #10B981;
+        }
+
+        .recommendation-yellow {
+            color: #F59E0B;
+        }
+
+        .recommendation-red {
+            color: #EF4444;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .download-link {
+            display: inline-flex;
+            justify-content: center;
+            width: 100%;
+            text-decoration: none;
+            padding: 15px 18px;
+            border-radius: 16px;
+            color: #FFFFFF;
+            background: #0F172A;
+            font-weight: 800;
+        }
+
+        .message {
+            margin-top: 16px;
+            font-size: 14px;
+            color: #64748B;
+        }
+
+        .error {
+            display: none;
+            margin-top: 18px;
+            padding: 16px;
+            border-radius: 16px;
+            color: #991B1B;
+            background: #FEE2E2;
+            border: 1px solid #FECACA;
+        }
+
+        .reset-button {
+            width: 100%;
+            margin-top: 12px;
+            border: 1px solid #CBD5E1;
+            border-radius: 16px;
+            padding: 14px 18px;
+            background: #FFFFFF;
+            color: #0F172A;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .reset-button:hover {
+            background: #F8FAFC;
+        }
+
+        .check-type-box {
+            margin-bottom: 18px;
+        }
+
+        .check-type-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #64748B;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .check-type-select {
+            width: 100%;
+            padding: 14px;
+            border-radius: 14px;
+            border: 1px solid #E2E8F0;
+            background: #FFFFFF;
+            color: #0F172A;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .history {
+            margin-top: 28px;
+            padding: 24px;
+            border-radius: 22px;
+            border: 1px solid #E2E8F0;
+            background: #FFFFFF;
+        }
+
+        .history-title {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 14px;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .history-item {
+            padding: 16px;
+            border-radius: 16px;
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+        }
+
+        .history-main {
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .history-meta {
+            color: #64748B;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .history-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: #1E90FF;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .zip-button {
+            display: none;
+            width: 100%;
+            margin-top: 16px;
+            border: none;
+            border-radius: 16px;
+            padding: 15px 18px;
+            background: linear-gradient(135deg, #0F172A, #334155);
+            color: #FFFFFF;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .zip-button:hover {
+            background: linear-gradient(135deg, #020617, #1E293B);
+        }
+
+        .file-preview {
+            display: none;
+            margin-top: 18px;
+            padding: 18px;
+            border-radius: 18px;
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+        }
+
+        .file-preview-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: #0F172A;
+            margin-bottom: 12px;
+        }
+
+        .file-preview-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .file-preview-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 14px;
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            font-size: 13px;
+        }
+
+        .file-preview-name {
+            color: #0F172A;
+            font-weight: 700;
+            word-break: break-word;
+        }
+
+        .file-preview-status {
+            color: #64748B;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .file-preview-status.ready {
+            color: #10B981;
+        }
+
+        .file-preview-status.processing {
+            color: #1E90FF;
+        }
+
+        .file-preview-status.error {
+            color: #EF4444;
+        }
+
+        .category-panel {
+            display: none;
+            margin-top: 18px;
+            padding: 18px;
+            border-radius: 18px;
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+        }
+
+        .category-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: #0F172A;
+            margin-bottom: 12px;
+        }
+
+        .category-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .category-item {
+            padding: 12px;
+            border-radius: 14px;
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+        }
+
+        .category-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .category-name {
+            font-size: 13px;
+            font-weight: 800;
+            color: #0F172A;
+        }
+
+        .category-count {
+            font-size: 13px;
+            font-weight: 800;
+            color: #64748B;
+            white-space: nowrap;
+        }
+
+        .category-bar {
+            width: 100%;
+            height: 8px;
+            border-radius: 999px;
+            background: #E2E8F0;
+            overflow: hidden;
+        }
+
+        .category-fill {
+            height: 100%;
+            border-radius: 999px;
+        }
+
+        .category-fill-green {
+            background: #10B981;
+        }
+
+        .category-fill-yellow {
+            background: #F59E0B;
+        }
+
+        .category-fill-red {
+            background: #EF4444;
+        }
+
+        .category-empty {
+            color: #64748B;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .toggle-category-btn {
+            margin-top: 20px;
+            margin-bottom: 16px;
+
+            padding: 8px 16px;
+
+            font-size: 13px;
+            font-weight: 700;
+
+            color: #256EF1;
+
+            background: #F0F9FF;
+
+            border: 1px solid #256EF1;
+            border-radius: 12px;
+
+            cursor: pointer;
+        }
+
+        .toggle-category-btn:hover {
+            background: #E0F2FF;
+        }
+
+
+        @media (max-width: 640px) {
+            .card {
+                padding: 28px;
+            }
+
+            .header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .hero-title {
+                font-size: 30px;
+            }
+
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="page">
+        <section class="card">
+            <div class="header">
+                <div>
+                    <div class="brand-title">ФорматУМ</div>
+                    <div class="brand-subtitle">Умная система проверки научных работ</div>
+                </div>
+
+                <div class="badge">DOCX → PDF-отчёт</div>
+            </div>
+
+            <h1 class="hero-title">
+                Проверка научной работы<br />
+                за несколько секунд
+            </h1>
+
+            <p class="hero-text">
+                Загрузите документ в формате DOCX. Система проверит структуру,
+                оформление и содержание, а затем сформирует профессиональный PDF-отчёт.
+            </p>
+
+            <div class="check-type-box">
+                <label class="check-type-label" for="checkType">
+                    Цель проверки документа
+                </label>
+
+                <select id="checkType" class="check-type-select">
+                    <option value="csm_conference">Конференция ЦСМ</option>
+                    <option value="other_conference">Конференция ...</option>
+                    <option value="vkr">ВКР</option>
+                </select>
+            </div>
+
+            <form id="uploadForm" class="upload-box">
+                <p id="dropHint" class="drop-hint">
+                    Перетащите один или несколько DOCX-файлов сюда или выберите их вручную
+                </p>
+
+                <input
+                    id="fileInput"
+                    type="file"
+                    name="file"
+                    accept=".docx"
+                    multiple
+                    required
+                />
+
+                <button id="submitButton" class="button" type="submit">
+                    Проверить документ
+                </button>
+
+                <div id="statusPanel" class="status-panel">
+                    <div class="status-row">
+                        <div id="spinner" class="spinner"></div>
+                        <div id="statusText" class="status-text">Подготовка...</div>
+                    </div>
+
+                    <div class="progress">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                </div>
+
+                <div id="filePreview" class="file-preview">
+                    <div class="file-preview-title">Файлы к проверке</div>
+                    <div id="filePreviewList" class="file-preview-list"></div>
+                </div>
+
+                <div id="message" class="message"></div>
+                <div id="error" class="error"></div>
+            </form>
+
+            <div id="result" class="result">
+                <div class="result-header">
+                    <strong>Отчёт успешно сформирован</strong>
+
+                    <div id="resultCarouselControls" class="result-carousel-controls" style="display: none;">
+                        <button id="prevReportButton" class="carousel-button" type="button">
+                            ‹
+                        </button>
+
+                        <span id="resultCounter" class="carousel-counter">
+                            1 из 1
+                        </span>
+
+                        <button id="nextReportButton" class="carousel-button" type="button">
+                            ›
+                        </button>
+                    </div>
+                </div>
+
+                <div id="resultFileName" class="result-file-name"></div>
+
+                <div class="result-grid">
+                    <div class="metric">
+                        <div id="score" class="metric-value">—</div>
+                        <div class="metric-label">Оценка</div>
+                        <div id="scoreRecommendation" class="score-recommendation">
+                            —
+                        </div>
+                    </div>
+                    
+
+                    <div class="metric">
+                        <div id="errors" class="metric-value">—</div>
+                        <div class="metric-label">Ошибки</div>
+                    </div>
+
+                    <div class="metric">
+                        <div id="checks" class="metric-value">—</div>
+                        <div class="metric-label">Проверки</div>
+                    </div>
+                </div>
+
+                <div class="metric">
+                    <div id="criticalErrors" class="metric-value">—</div>
+                    <div class="metric-label">Критические</div>
+                </div>
+
+                <div class="metric">
+                    <div id="warningsCount" class="metric-value">—</div>
+                    <div class="metric-label">Предупреждения</div>
+                </div>
+
+                <div class="metric">
+                    <div id="weightedPenalty" class="metric-value">—</div>
+                    <div class="metric-label">Штраф</div>
+                </div>
+
+                <div id="complianceStatus" class="compliance-status">
+                    —
+                </div>
+
+                <div class="category-toggle-wrapper">
+                    <button id="toggleCategoryBtn" class="toggle-category-btn">
+                        Показать / Скрыть категории ошибок
+                    </button>
+
+                    <div id="categoryPanel" class="category-panel" style="display: none;">
+                        <div class="category-title">Ошибки по категориям</div>
+                        <div id="categoryList" class="category-list"></div>
+                    </div>
+                </div>
+
+                <a id="downloadLink" class="download-link" href="#" target="_blank">
+                    Скачать PDF-отчёт
+                 </a>
+
+                <button id="resetButton" class="reset-button" type="button">
+                    Проверить другой документ
+                </button>   
+            </div>
+
+            <div id="history" class="history" style="display: none;">
+                <div class="history-title">История проверок</div>
+                <div id="historyList" class="history-list"></div>
+
+                <button id="downloadZipButton" class="zip-button" type="button">
+                    Скачать все отчёты ZIP
+                </button>
+            </div>
+        </section>
+    </main>
+<script>
+    const form = document.getElementById("uploadForm");
+    const fileInput = document.getElementById("fileInput");
+    const button = document.getElementById("submitButton");
+    const dropHint = document.getElementById("dropHint");
+    const message = document.getElementById("message");
+    const errorBox = document.getElementById("error");
+    const resultBox = document.getElementById("result");
+    const score = document.getElementById("score");
+    const scoreRecommendation = document.getElementById("scoreRecommendation");
+    const errors = document.getElementById("errors");
+    const checks = document.getElementById("checks");
+    const criticalErrors = document.getElementById("criticalErrors");
+    const warningsCount = document.getElementById("warningsCount");
+    const weightedPenalty = document.getElementById("weightedPenalty");
+    const complianceStatus = document.getElementById("complianceStatus");
+    const downloadLink = document.getElementById("downloadLink");
+    const resetButton = document.getElementById("resetButton");
+    const statusPanel = document.getElementById("statusPanel");
+    const statusText = document.getElementById("statusText");
+    const progressFill = document.getElementById("progressFill");
+    const spinner = document.getElementById("spinner");
+    const checkType = document.getElementById("checkType");
+    const historyBox = document.getElementById("history");
+    const historyList = document.getElementById("historyList");
+    const downloadZipButton = document.getElementById("downloadZipButton");
+    const generatedPdfFiles = [];
+    const filePreview = document.getElementById("filePreview");
+    const filePreviewList = document.getElementById("filePreviewList");
+    const categoryPanel = document.getElementById("categoryPanel");
+    const categoryList = document.getElementById("categoryList");
+    const resultFileName = document.getElementById("resultFileName");
+    const resultCarouselControls = document.getElementById("resultCarouselControls");
+    const prevReportButton = document.getElementById("prevReportButton");
+    const nextReportButton = document.getElementById("nextReportButton");
+    const resultCounter = document.getElementById("resultCounter");
+
+    const reportResults = [];
+    let currentReportIndex = 0;
+
+    const MAX_FILES_COUNT = 10;
+
+    const MAX_FILE_SIZE = 20 * 1024 * 1024;
+
+    const checkTypeLabels = {
+        csm_conference: "Конференция ЦСМ",
+        other_conference: "Другая конференция",
+        vkr: "ВКР",
+    };
+
+    function setStatus(text, progress) {
+        statusText.textContent = text;
+        progressFill.style.width = `${progress}%`;
+    }
+
+        function getScoreClass(scoreValue) {
+        if (scoreValue >= 95) {
+            return "score-green";
+        }
+
+        if (scoreValue >= 85) {
+            return "score-yellow";
+        }
+
+        return "score-red";
+    }
+
+    function applyScoreColor(scoreElement, scoreValue) {
+        scoreElement.classList.remove(
+            "score-green",
+            "score-yellow",
+            "score-red"
+        );
+
+        scoreElement.classList.add(
+            getScoreClass(scoreValue)
+        );
+    }
+
+    function getRecommendationData(scoreValue) {
+        if (scoreValue >= 95) {
+            return {
+                text: "🟢 Работа готова к подаче",
+                className: "recommendation-green",
+            };
+        }
+
+        if (scoreValue >= 85) {
+            return {
+                text: "🟡 Требуются небольшие исправления",
+                className: "recommendation-yellow",
+            };
+        }
+
+        return {
+            text: "🔴 Работа требует доработки",
+            className: "recommendation-red",
+        };
+    }
+
+    function applyRecommendation(scoreValue) {
+        const recommendation = getRecommendationData(scoreValue);
+
+        scoreRecommendation.textContent = recommendation.text;
+
+        scoreRecommendation.classList.remove(
+            "recommendation-green",
+            "recommendation-yellow",
+            "recommendation-red"
+        );
+
+        scoreRecommendation.classList.add(
+            recommendation.className
+        );
+    }
+
+    function applyComplianceStatus(data) {
+        complianceStatus.classList.remove(
+            "compliance-status-ok",
+            "compliance-status-warning",
+            "compliance-status-danger"
+        );
+
+        complianceStatus.textContent = data.status;
+
+        if (data.has_critical_errors) {
+            complianceStatus.classList.add("compliance-status-danger");
+            return;
+        }
+
+        if (data.score >= 95) {
+            complianceStatus.classList.add("compliance-status-ok");
+            return;
+        }
+
+        if (data.score >= 80) {
+            complianceStatus.classList.add("compliance-status-warning");
+            return;
+        }
+
+        complianceStatus.classList.add("compliance-status-danger");
+    }
+
+    function getCategoryColorClass(count) {
+        if (count <= 2) {
+            return "category-fill-green";
+        }
+
+        if (count <= 5) {
+            return "category-fill-yellow";
+        }
+
+        return "category-fill-red";
+    }
+
+    function renderErrorCategories(categories) {
+        categoryList.innerHTML = "";
+
+        if (!categories || !categories.length) {
+            categoryList.innerHTML = `
+                <div class="category-empty">
+                    Ошибок по категориям не найдено. Отличный результат.
+                </div>
+            `;
+            return;
+        }
+
+        const maxCount = Math.max(
+            ...categories.map((item) => item.count)
+        );
+
+        categories.forEach((item) => {
+            const width = Math.max(
+                8,
+                Math.round((item.count / maxCount) * 100)
+            );
+
+            const colorClass = getCategoryColorClass(
+                item.count
+            );
+
+            const element = document.createElement("div");
+            element.className = "category-item";
+
+            element.innerHTML = `
+                <div class="category-row">
+                    <div class="category-name">${item.label}</div>
+                    <div class="category-count">${item.count}</div>
+                </div>
+
+                <div class="category-bar">
+                    <div
+                        class="category-fill ${colorClass}"
+                        style="width: ${width}%"
+                    ></div>
+                </div>
+            `;
+
+            categoryList.appendChild(element);
+        });
+    }
+
+    function showReportByIndex(index) {
+        if (!reportResults.length) {
+            return;
+        }
+
+        if (index < 0) {
+            index = reportResults.length - 1;
+        }
+
+        if (index >= reportResults.length) {
+            index = 0;
+        }
+
+        currentReportIndex = index;
+
+        const report = reportResults[currentReportIndex];
+        const data = report.data;
+
+        resultFileName.textContent = report.fileName;
+
+        score.textContent = `${data.score}%`;
+        applyScoreColor(score, data.score);
+        applyRecommendation(data.score);
+
+        errors.textContent = data.total_errors;
+        checks.textContent = data.total_checks;
+
+        criticalErrors.textContent = data.critical_errors_count || 0;
+        warningsCount.textContent = data.warnings_count || 0;
+        weightedPenalty.textContent = data.weighted_penalty || 0;
+
+        applyComplianceStatus(data);
+
+        downloadLink.href = data.download_url;
+
+        renderErrorCategories(data.error_categories);
+
+        categoryPanel.style.display = "none";
+        toggleCategoryBtn.textContent = "Показать категории ошибок";
+
+        resultCounter.textContent = `${currentReportIndex + 1} из ${reportResults.length}`;
+
+        if (reportResults.length > 1) {
+            resultCarouselControls.style.display = "flex";
+        } else {
+            resultCarouselControls.style.display = "none";
+        }
+
+        resultBox.style.display = "block";
+    }
+
+    function addReportToCarousel(data, fileName) {
+        reportResults.push({
+            data: data,
+            fileName: fileName,
+        });
+
+        showReportByIndex(reportResults.length - 1);
+    }
+
+    function validateSelectedFile(file) {
+        if (!file) {
+            errorBox.textContent = "Выберите DOCX-файл.";
+            errorBox.style.display = "block";
+            return false;
+        }
+
+        if (!file.name.toLowerCase().endsWith(".docx")) {
+            errorBox.textContent = `Файл "${file.name}" не является DOCX-файлом.`;
+            errorBox.style.display = "block";
+            return false;
+        }
+
+        if (file.size > MAX_FILE_SIZE) {
+            errorBox.textContent = `Файл "${file.name}" слишком большой. Максимальный размер: 20 МБ.`;
+            errorBox.style.display = "block";
+            return false;
+        }
+
+        return true;
+    }
+
+    function validateSelectedFiles(files) {
+        if (!files.length) {
+            errorBox.textContent = "Выберите хотя бы один DOCX-файл.";
+            errorBox.style.display = "block";
+            return false;
+        }
+
+        if (files.length > MAX_FILES_COUNT) {
+            errorBox.textContent = `Можно загрузить не больше ${MAX_FILES_COUNT} файлов за раз.`;
+            errorBox.style.display = "block";
+            return false;
+        }
+
+        for (const file of files) {
+            if (!validateSelectedFile(file)) {
+                return false;
+            }
+        }
+
+        errorBox.style.display = "none";
+        return true;
+    }
+
+    function setSelectedFiles(files) {
+        const dataTransfer = new DataTransfer();
+
+        files.forEach((file) => {
+            dataTransfer.items.add(file);
+        });
+
+        fileInput.files = dataTransfer.files;
+
+        if (files.length === 1) {
+            dropHint.textContent = `Выбран файл: ${files[0].name}`;
+        } else {
+            dropHint.textContent = `Выбрано файлов: ${files.length}`;
+        }
+    }
+
+    function renderFilePreview(files) {
+        filePreview.style.display = "block";
+        filePreviewList.innerHTML = "";
+
+        files.forEach((file, index) => {
+            const item = document.createElement("div");
+            item.className = "file-preview-item";
+            item.id = `filePreviewItem-${index}`;
+
+            item.innerHTML = `
+                <div class="file-preview-name">${file.name}</div>
+                <div id="filePreviewStatus-${index}" class="file-preview-status">
+                    Ожидает
+                </div>
+            `;
+
+            filePreviewList.appendChild(item);
+        });
+    }
+
+    function updateFilePreviewStatus(index, statusTextValue, statusClass) {
+        const statusElement = document.getElementById(`filePreviewStatus-${index}`);
+
+        if (!statusElement) {
+            return;
+        }
+
+        statusElement.textContent = statusTextValue;
+        statusElement.className = `file-preview-status ${statusClass}`;
+    }    
+
+    form.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        form.classList.add("drag-over");
+    });
+
+    form.addEventListener("dragleave", () => {
+        form.classList.remove("drag-over");
+    });
+
+    form.addEventListener("drop", async (event) => {
+        event.preventDefault();
+        form.classList.remove("drag-over");
+
+        const files = Array.from(event.dataTransfer.files);
+
+        if (!validateSelectedFiles(files)) {
+            return;
+        }
+
+        setSelectedFiles(files);
+        renderFilePreview(files);
+
+        await submitDocuments();
+    });
+
+    fileInput.addEventListener("change", () => {
+        const files = Array.from(fileInput.files);
+
+        if (!validateSelectedFiles(files)) {
+            fileInput.value = "";
+            dropHint.textContent = "Перетащите один или несколько DOCX-файлов сюда или выберите их вручную";
+            return;
+        }
+
+        if (files.length === 1) {
+            dropHint.textContent = `Выбран файл: ${files[0].name}`;
+        } else {
+            dropHint.textContent = `Выбрано файлов: ${files.length}`;
+        }
+        renderFilePreview(files);
+    });
+
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        await submitDocuments();
+    });
+
+    async function submitDocuments() {
+        errorBox.style.display = "none";
+        resultBox.style.display = "none";
+        statusPanel.style.display = "block";
+        spinner.style.display = "block";
+        progressFill.style.background = "linear-gradient(135deg, #1E90FF, #38BDF8)";
+
+        const files = Array.from(fileInput.files);
+
+        if (!validateSelectedFiles(files)) {
+            statusPanel.style.display = "none";
+            return;
+        }
+
+        button.disabled = true;
+        button.textContent = "Проверяем документы...";
+        message.textContent = "";
+
+        try {
+            for (let index = 0; index < files.length; index++) {
+                const file = files[index];
+                const currentNumber = index + 1;
+                const totalNumber = files.length;
+
+                const startProgress = Math.round((index / totalNumber) * 100);
+                const finishProgress = Math.round((currentNumber / totalNumber) * 100);
+
+                setStatus(
+                    `Файл ${currentNumber} из ${totalNumber}: загружается ${file.name}`,
+                    Math.min(startProgress + 10, 95)
+                );
+                updateFilePreviewStatus(index, "Загрузка", "processing");
+
+                const formData = new FormData();
+                formData.append("file", file);
+                formData.append("check_type", checkType.value);
+
+                setStatus(
+                    `Файл ${currentNumber} из ${totalNumber}: документ анализируется`,
+                    Math.min(startProgress + 30, 95)
+                );
+                updateFilePreviewStatus(index, "Проверяется", "processing");
+
+                const response = await fetch("/upload", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.detail || `Ошибка генерации отчёта для файла ${file.name}`);
+                }
+
+                setStatus(
+                    `Файл ${currentNumber} из ${totalNumber}: PDF-отчёт готов`,
+                    finishProgress
+                );
+                updateFilePreviewStatus(index, "Готово", "ready");
+
+                addReportToCarousel(data, file.name);
+
+                message.textContent = `Готово: ${data.pdf_report}`;
+
+                addHistoryItem(data, file.name);
+            }
+
+            setStatus("Готово. Все отчёты сформированы.", 100);
+            spinner.style.display = "none";
+        } catch (error) {
+            const files = Array.from(fileInput.files);
+
+            files.forEach((file, index) => {
+                const statusElement = document.getElementById(
+                    `filePreviewStatus-${index}`
+                );
+
+                if (
+                    statusElement
+                    && statusElement.textContent !== "Готово"
+                ) {
+                    updateFilePreviewStatus(
+                        index,
+                        "Ошибка",
+                        "error"
+                    );
+                }
+            });
+
+            spinner.style.display = "none";
+            progressFill.style.width = "100%";
+            progressFill.style.background = "#EF4444";
+            statusText.textContent = "Ошибка обработки.";
+
+            errorBox.textContent = error.message;
+            errorBox.style.display = "block";
+            message.textContent = "";
+        } finally {
+            button.disabled = false;
+            button.textContent = "Проверить документ";
+        }
+    }
+
+    function addHistoryItem(data, originalFileName) {
+        historyBox.style.display = "block";
+        generatedPdfFiles.push(data.pdf_report);
+        downloadZipButton.style.display = "block";
+
+        const item = document.createElement("div");
+        item.className = "history-item";
+
+        const checkTypeName = checkTypeLabels[data.check_type] || "Не указано";
+        const scoreClass = getScoreClass(data.score);
+        const recommendation = getRecommendationData(data.score);
+        const statusClass = data.has_critical_errors
+            ? "recommendation-red"
+            : recommendation.className;
+        const categoriesText = data.error_categories && data.error_categories.length
+            ? data.error_categories
+                .slice(0, 3)
+                .map((item) => `${item.label}: ${item.count}`)
+                .join(" · ")
+            : "Ошибок по категориям нет";
+
+        item.innerHTML = `
+            <div class="history-main">${originalFileName}</div>
+            <div class="history-meta">
+                Цель проверки: ${checkTypeName}<br />
+                Оценка: <span class="${scoreClass}">${data.score}%</span> · Ошибки: ${data.total_errors} · Проверки: ${data.total_checks}<br />
+                Критические: ${data.critical_errors_count || 0} · Предупреждения: ${data.warnings_count || 0} · Штраф: ${data.weighted_penalty || 0}<br />
+                <span class="${statusClass}">${data.status}</span><br />
+                Категории: ${categoriesText}    
+            </div>
+            <a
+                class="history-link"
+                href="${data.download_url}"
+                target="_blank"
+                data-filename="${data.pdf_report}"
+            >
+                Скачать отчёт
+            </a>
+        `;
+
+        historyList.prepend(item);
+    }
+
+    const toggleCategoryBtn = document.getElementById("toggleCategoryBtn");
+
+    prevReportButton.addEventListener("click", () => {
+        showReportByIndex(currentReportIndex - 1);
+    });
+
+    nextReportButton.addEventListener("click", () => {
+        showReportByIndex(currentReportIndex + 1);
+    });
+
+    toggleCategoryBtn.addEventListener("click", () => {
+        if (!categoryPanel) return;
+
+        if (categoryPanel.style.display === "none") {
+            categoryPanel.style.display = "block";
+            toggleCategoryBtn.textContent = "Скрыть категории ошибок";
+        } else {
+            categoryPanel.style.display = "none";
+            toggleCategoryBtn.textContent = "Показать категории ошибок";
+        }
+    });
+
+    downloadZipButton.addEventListener("click", () => {
+        if (!generatedPdfFiles.length) {
+            alert("Пока нет отчётов для скачивания.");
+            return;
+        }
+
+        const uniqueFiles = [...new Set(generatedPdfFiles)];
+
+        const query = encodeURIComponent(
+            uniqueFiles.join(",")
+        );
+
+        const zipUrl = `/download-zip?files=${query}`;
+
+        const link = document.createElement("a");
+        link.href = zipUrl;
+        link.download = "reports.zip";
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+
+    resetButton.addEventListener("click", () => {
+        fileInput.value = "";
+
+        dropHint.textContent = "Перетащите один или несколько DOCX-файлов сюда или выберите их вручную";
+
+        resultBox.style.display = "none";
+        statusPanel.style.display = "none";
+        errorBox.style.display = "none";
+        filePreview.style.display = "none";
+        filePreviewList.innerHTML = "";
+        categoryPanel.style.display = "none";
+        categoryList.innerHTML = "";
+
+        spinner.style.display = "none";
+        progressFill.style.width = "0%";
+        progressFill.style.background = "linear-gradient(135deg, #1E90FF, #38BDF8)";
+
+        statusText.textContent = "Подготовка...";
+        message.textContent = "";
+
+        score.textContent = "—";
+        scoreRecommendation.textContent = "—";
+
+        scoreRecommendation.classList.remove(
+            "recommendation-green",
+            "recommendation-yellow",
+            "recommendation-red"
+        );
+
+        score.classList.remove(
+            "score-green",
+            "score-yellow",
+            "score-red"
+        );
+        errors.textContent = "—";
+        checks.textContent = "—";
+        criticalErrors.textContent = "—";
+        warningsCount.textContent = "—";
+        weightedPenalty.textContent = "—";
+
+        complianceStatus.textContent = "—";
+        complianceStatus.classList.remove(
+            "compliance-status-ok",
+            "compliance-status-warning",
+            "compliance-status-danger"
+        );
+
+        downloadLink.href = "#";
+
+        reportResults.length = 0;
+        currentReportIndex = 0;
+
+        resultFileName.textContent = "";
+        resultCounter.textContent = "1 из 1";
+        resultCarouselControls.style.display = "none";
+
+        toggleCategoryBtn.textContent = "Показать категории ошибок";
+
+        button.disabled = false;
+        button.textContent = "Проверить документ";
+    });
+</script>
+</body>
+</html>

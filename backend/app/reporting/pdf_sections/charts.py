@@ -1,0 +1,2 @@
+class ChartsMixin:
+    pass
