@@ -173,7 +173,7 @@ EXPECTED_SPACE_AFTER = {
     "title_ru": 0,
     "title_en": 0,
 
-    "authors": 0,
+    "author": 0,
     "affiliation": 0,
     "email": 0,
 
@@ -214,21 +214,7 @@ EXPECTED_ITALIC["subsection_header"] = False
 EXPECTED_FIRST_LINE_INDENT["subsection_header"] = 1.25
 # EXPECTED_SPACE_BEFORE["subsection_header"] = 0
 # EXPECTED_SPACE_AFTER["subsection_header"] = 0
-EXPECTED_FONT_SIZES[
-    "table_note"
-] = 14
 
-EXPECTED_FIRST_LINE_INDENT[
-    "table_note"
-] = 0
-
-EXPECTED_BOLD[
-    "table_note"
-] = False
-
-EXPECTED_ITALIC[
-    "table_note"
-] = False
 
 EXPECTED_FONT_SIZES["table_note"] = 12
 EXPECTED_ITALIC["table_note"] = True
